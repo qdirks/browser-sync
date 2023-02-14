@@ -15,6 +15,7 @@
 		"templates"
 	],
 	"scripts": {
+		"build:cmd": "npm run build",
 		"build": "npm run build:static && npm run build:bundle",
 		"build:static": "node tasks/crossbow.js",
 		"build:bundle": "esbuild src/scripts/app.js --bundle --outdir=public/js --minify",

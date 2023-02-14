@@ -4,6 +4,7 @@
 	"scripts": {
 		"bootstrap": "lerna bootstrap",
 		"postinstall": "npm run bootstrap",
+		"build:cmd": "lerna run build:cmd",
 		"build": "lerna run build",
 		"test": "npm run build && lerna run test --scope browser-sync",
 		"test:e2e": "cb cy:file-reloading cy:ui-remote-debug cy:connection-notify"

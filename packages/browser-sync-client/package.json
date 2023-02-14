@@ -25,6 +25,9 @@
 		"node": ">=8.0.0"
 	},
 	"scripts": {
+		"build:cmd": "npm run tsc:cmd && npm run bundle",
+		"clean:cmd": "rmdir /s /q dist _dist",
+		"tsc:cmd": "npm run clean:cmd & tsc",
 		"build": "npm run clean && npm run tsc && npm run bundle",
 		"clean": "rm -rf dist/* _dist/*",
 		"watch": "npm run build:prod -- --watch",
