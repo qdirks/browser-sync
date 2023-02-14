@@ -215,81 +215,40 @@ module.exports.plugin = function(emitter, bs) {
  * @param urls
  */
 function logUrls(urls) {
-    var keys = Object.keys(urls);
-    var longestName = 0;
-    var longesturl = 0;
-    var offset = 2;
+    var locationNames = Object.keys(urls);
+    var maxName = 0;
+    var maxUrl = 0;
 
-    if (!keys.length) {
-        return;
-    }
-
-    var names = keys.map(function(key) {
-        if (key.length > longestName) {
-            longestName = key.length;
-        }
-        if (urls[key].length > longesturl) {
-            longesturl = urls[key].length;
-        }
-        return key;
+    // determine the max width of the output
+    locationNames.forEach(function (name) {
+        if (urls[name].length > maxUrl) maxUrl = urls[name].length;
+        name = transform(name);
+        if (name.length > maxName) maxName = name.length;
     });
+    var maxWidth = maxName + maxUrl + 2;
 
-    var underline = getChars(longestName + offset + longesturl + 1, "-");
-    var underlined = false;
-
+    // log the access urls
+    var underline = "".padEnd(maxWidth, '-');
     logger.info("{bold:Access URLs:");
-    logger.unprefixed("info", "{grey: %s", underline);
-
-    keys.forEach(function(key, i) {
-        var keyname = getKeyName(key);
-        logger.unprefixed(
-            "info",
-            " %s: {magenta:%s}",
-            getPadding(key.length, longestName + offset) + keyname,
-            urls[key]
-        );
-        if (!underlined && names[i + 1] && names[i + 1].indexOf("ui") > -1) {
-            underlined = true;
-            logger.unprefixed("info", "{grey: %s}", underline);
-        }
-    });
-
     logger.unprefixed("info", "{grey: %s}", underline);
-}
-
-/**
- * @param {Number} len
- * @param {Number} max
- * @returns {string}
- */
-function getPadding(len, max) {
-    return new Array(max - (len + 1)).join(" ");
-}
-
-/**
- * @param {Number} len
- * @param {String} char
- * @returns {string}
- */
-function getChars(len, char) {
-    return new Array(len).join(char);
+    locationNames.forEach(function (name, ix) {
+        var tName = transform(name).padStart(maxName);
+        logger.unprefixed("info", " %s: {magenta:%s}", tName, urls[name]);
+        if (ix % 2) logger.unprefixed("info", "{grey: %s}", underline);
+    });
 }
 
 /**
  * Transform url-key names into something more presentable
- * @param key
+ * @param {string} key
  * @returns {string}
  */
-function getKeyName(key) {
-    if (key.indexOf("ui") > -1) {
-        if (key === "ui") {
-            return "UI";
-        }
-        if (key === "ui-external") {
-            return "UI External";
-        }
-    }
-    return key.substr(0, 1).toUpperCase() + key.substring(1);
+function transform(key) {
+    if (key === 'ui')          return "UI Local";
+    if (key === 'ui-external') return "UI External";
+
+    // otherwise capitalize
+    return key.substring(0, 1).toUpperCase() + key.substring(1);
 }
 
 /**
