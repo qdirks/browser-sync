@@ -3,6 +3,7 @@
 var messages = require("./connect-utils");
 var utils = require("./utils");
 var _ = require("./lodash.custom");
+var path = require("path");
 
 var template = "[{blue:%s}] ";
 
@@ -177,6 +178,10 @@ module.exports.callbacks = {
         }
 
         function serveFiles(base) {
+            const base_ = path.resolve(base);
+            const parr = base_.split(path.sep);
+            if (parr.length > 2) base = path_[0] + path.sep + "~" + path.sep + path_[path.length - 1];
+            else base = base_;
             logger.info("Serving files from: {magenta:%s}", base);
         }
     }
