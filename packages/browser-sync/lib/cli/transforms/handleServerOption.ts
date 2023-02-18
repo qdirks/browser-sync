@@ -11,7 +11,7 @@ export function handleServerOption(incoming: BsTempOptions): TransformResult {
     // server: true
     if (value === true) {
         const obj: IServerOption = {
-            baseDir: [incoming.get("cwd") || "./"]
+            baseDir: [incoming.get("cwd")]
         };
         return [incoming.set("server", fromJS(obj)), []];
     }
