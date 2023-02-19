@@ -180,7 +180,7 @@ module.exports.callbacks = {
         function serveFiles(base) {
             const base_ = path.resolve(base);
             const parr = base_.split(path.sep);
-            const abbr = "<...>";
+            const abbr = "...";
             if (parr.length > 2 && parr.slice(1, -1).join(path.sep).length > abbr.length)
                 base = parr[0] + path.sep + abbr + path.sep + parr[parr.length - 1];
             else base = base_;
