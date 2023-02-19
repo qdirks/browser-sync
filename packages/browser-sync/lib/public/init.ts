@@ -1,6 +1,6 @@
 var _ = require("../lodash.custom");
-var fs = require("fs");
-var path = require("path");
+import * as path from "path";
+import * as fs from "fs";
 import { merge, printErrors } from "../cli/cli-options";
 
 /**
