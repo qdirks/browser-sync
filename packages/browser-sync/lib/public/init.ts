@@ -2,6 +2,9 @@ var _ = require("../lodash.custom");
 import * as path from "path";
 import * as fs from "fs";
 import { merge, printErrors } from "../cli/cli-options";
+var logger = require("eazy-logger").Logger({
+    useLevelPrefixes: false
+});
 
 /**
  * @param {BrowserSync} browserSync
@@ -26,8 +29,14 @@ module.exports = function(browserSync, name, pjson) {
         // Env specific items
         args.config.version = pjson.version;
         if (!args.config.cwd) args.config.cwd = process.cwd();
-        else if (!fs.existsSync(args.config.cwd)) throw new Error(`Invalid directory specified for cwd option.`);
-        else args.config.cwd = path.resolve(args.config.cwd);
+        else if (typeof args.config.cwd === 'string') {
+            if (args.config.cwd.indexOf('"') > -1) args.config.cwd = args.config.cwd.replace('"', ()=>"") + path.sep;
+        }
+        if (!fs.existsSync(args.config.cwd)) {
+            logger.error(`Invalid directory specified for cwd option. Got: ${args.config.cwd}`);
+            return;
+        }
+        args.config.cwd = path.resolve(args.config.cwd);
 
         const [opts, errors] = merge(args.config);
 
