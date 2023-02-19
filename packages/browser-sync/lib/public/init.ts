@@ -1,4 +1,6 @@
 var _ = require("../lodash.custom");
+var fs = require("fs");
+var path = require("path");
 import { merge, printErrors } from "../cli/cli-options";
 
 /**
@@ -23,7 +25,9 @@ module.exports = function(browserSync, name, pjson) {
 
         // Env specific items
         args.config.version = pjson.version;
-        args.config.cwd = args.config.cwd || process.cwd();
+        if (!args.config.cwd) args.config.cwd = process.cwd();
+        else if (!fs.existsSync(args.config.cwd)) throw new Error(`Invalid directory specified for cwd option.`);
+        else args.config.cwd = path.resolve(args.config.cwd);
 
         const [opts, errors] = merge(args.config);
 
