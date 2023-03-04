@@ -14,7 +14,7 @@ describe("Logs file change events following stream:changed", function() {
     after(function() {
         logger.info.restore();
     });
-    it("should log when straem:changed", function(done) {
+    it("should log when stream:changed", function(done) {
         browserSync.reset();
         browserSync(
             {
