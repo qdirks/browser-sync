@@ -3,6 +3,7 @@
 var messages = require("./connect-utils");
 var utils = require("./utils");
 var _ = require("./lodash.custom");
+var path = require("path");
 var chalk = require("chalk");
 
 var template = (prefix) => "[" + chalk.blue(prefix) + "] "
@@ -180,6 +181,12 @@ module.exports.callbacks = {
         }
 
         function serveFiles(base) {
+            const base_ = path.resolve(base);
+            const parr = base_.split(path.sep);
+            const abbr = "...";
+            if (parr.length > 2 && parr.slice(1, -1).join(path.sep).length > abbr.length)
+                base = parr[0] + path.sep + abbr + path.sep + parr[parr.length - 1];
+            else base = base_;
             logger.info("Serving files from: %s", chalk.magenta(base));
         }
     }
@@ -218,81 +225,40 @@ module.exports.plugin = function(emitter, bs) {
  * @param urls
  */
 function logUrls(urls) {
-    var keys = Object.keys(urls);
-    var longestName = 0;
-    var longesturl = 0;
-    var offset = 2;
+    var locationNames = Object.keys(urls);
+    var maxName = 0;
+    var maxUrl = 0;
 
-    if (!keys.length) {
-        return;
-    }
-
-    var names = keys.map(function(key) {
-        if (key.length > longestName) {
-            longestName = key.length;
-        }
-        if (urls[key].length > longesturl) {
-            longesturl = urls[key].length;
-        }
-        return key;
+    // determine the max width of the output
+    locationNames.forEach(function (name) {
+        if (urls[name].length > maxUrl) maxUrl = urls[name].length;
+        name = transform(name);
+        if (name.length > maxName) maxName = name.length;
     });
+    var maxWidth = maxName + maxUrl + 2;
 
-    var underline = getChars(longestName + offset + longesturl + 1, "-");
-    var underlined = false;
-
+    // log the access urls
+    var underline = "".padEnd(maxWidth, '-');
     logger.info(chalk.bold("Access URLs:"));
     logger.unprefixed("info", " %s", chalk.grey(underline));
-
-    keys.forEach(function(key, i) {
-        var keyname = getKeyName(key);
-        logger.unprefixed(
-            "info",
-            " %s: %s",
-            getPadding(key.length, longestName + offset) + keyname,
-            chalk.magenta(urls[key])
-        );
-        if (!underlined && names[i + 1] && names[i + 1].indexOf("ui") > -1) {
-            underlined = true;
-            logger.unprefixed("info", " %s", chalk.grey(underline));
-        }
+    locationNames.forEach(function (name, ix) {
+        var tName = transform(name).padStart(maxName);
+        logger.unprefixed("info", " %s: %s", tName, chalk.magenta(urls[name]));
+        if (ix % 2) logger.unprefixed("info", " %s", chalk.grey(underline));
     });
-
-    logger.unprefixed("info", " %s", chalk.grey(underline));
-}
-
-/**
- * @param {Number} len
- * @param {Number} max
- * @returns {string}
- */
-function getPadding(len, max) {
-    return new Array(max - (len + 1)).join(" ");
-}
-
-/**
- * @param {Number} len
- * @param {String} char
- * @returns {string}
- */
-function getChars(len, char) {
-    return new Array(len).join(char);
 }
 
 /**
  * Transform url-key names into something more presentable
- * @param key
+ * @param {string} key
  * @returns {string}
  */
-function getKeyName(key) {
-    if (key.indexOf("ui") > -1) {
-        if (key === "ui") {
-            return "UI";
-        }
-        if (key === "ui-external") {
-            return "UI External";
-        }
-    }
-    return key.substr(0, 1).toUpperCase() + key.substring(1);
+function transform(key) {
+    if (key === 'ui')          return "UI Local";
+    if (key === 'ui-external') return "UI External";
+
+    // otherwise capitalize
+    return key.substring(0, 1).toUpperCase() + key.substring(1);
 }
 
 /**
